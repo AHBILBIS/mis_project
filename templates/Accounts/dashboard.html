@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Enterprise MIS{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="p-5 mb-4 bg-white rounded-3 shadow-sm border">
+            <h1 class="display-6 fw-bold">Welcome to Enterprise MIS</h1>
+            <p class="col-md-8 fs-5 text-muted">You are logged in as <strong>{{ user.get_full_name|default:user.username }}</strong> with role: <span class="badge bg-secondary">{{ role }}</span>.</p>
+            <hr class="my-4">
+            
+            <div class="d-flex gap-2">
+                <a href="{% url 'admin:index' %}" class="btn btn-outline-primary">Open Admin Panel</a>
+                {% if user.role == 'ADMIN' or user.role == 'MANAGER' or user.is_superuser %}
+                    <a href="{% url 'manager_panel' %}" class="btn btn-warning">Manager Portal</a>
+                    <a href="{% url 'staff_reports' %}" class="btn btn-success">Executive Analytics & Reports</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

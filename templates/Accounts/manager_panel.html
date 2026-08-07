@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Manager Panel - Enterprise MIS{% endblock %}
+
+{% block content %}
+<div class="alert alert-warning border-warning">
+    <h4 class="alert-heading fw-bold">Restricted Management Area</h4>
+    <p>This view is protected by the custom <code>@role_required(['ADMIN', 'MANAGER'])</code> authorization decorator.</p>
+    <hr>
+    <a href="{% url 'dashboard' %}" class="btn btn-sm btn-dark">Return to Dashboard</a>
+</div>
+{% endblock %}
