@@ -75,3 +75,30 @@ def manager_only_view(request):
     Restricted manager panel view.
     """
     return render(request, 'accounts/manager_panel.html')
+
+from .forms import UserRegisterForm
+
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+
+    if request.method == "POST":
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data["password"])
+            user.save()
+
+            if hasattr(user, "role"):
+                user.role = "STAFF"
+                user.save()
+
+            messages.success(request, "Account created successfully! You can now log in.")
+            return redirect("login")
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = UserRegisterForm()
+
+    return render(request, "accounts/register.html", {"form": form})
+
