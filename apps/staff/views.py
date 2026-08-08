@@ -1,24 +1,18 @@
+import io
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
-from .models import StaffProfile
+from django.http import HttpResponse
+from docx import Document
+import openpyxl
+
+from .models import StaffProfile, InventoryItem, StaffReport
 from .forms import StaffProfileForm
 
 @login_required
 def staff_list(request):
-    query = request.GET.get("q", "")
-    staff_members = StaffProfile.objects.all()
-
-    if query:
-        staff_members = staff_members.filter(
-            Q(first_name__icontains=query) |
-            Q(last_name__icontains=query) |
-            Q(employee_id__icontains=query) |
-            Q(designation__icontains=query)
-        )
-
-    return render(request, "staff/staff_list.html", {"staff_members": staff_members, "query": query})
+    staff_members = StaffProfile.objects.select_related("user", "department").all()
+    return render(request, "staff/staff_list.html", {"staff_members": staff_members})
 
 @login_required
 def staff_create(request):
@@ -26,20 +20,11 @@ def staff_create(request):
         form = StaffProfileForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Staff member added successfully.")
+            messages.success(request, "Staff member created successfully.")
             return redirect("staff_list")
-        else:
-            messages.error(request, "Please correct the errors below.")
     else:
         form = StaffProfileForm()
-
-    return render(request, "staff/staff_form.html", {"form": form, "title": "Add New Staff"})
-
-import io
-from django.http import HttpResponse
-from docx import Document
-import openpyxl
-from .models import InventoryItem, StaffReport
+    return render(request, "staff/staff_form.html", {"form": form})
 
 @login_required
 def create_report(request):
@@ -47,18 +32,25 @@ def create_report(request):
         title = request.POST.get("title")
         content = request.POST.get("content")
         
-        # Save to database
-        report = StaffReport.objects.create(title=title, author=request.user, content=content)
+        report = StaffReport.objects.create(
+            title=title, 
+            author=request.user, 
+            content=content
+        )
         
-        # Generate Word Document (.docx)
         doc = Document()
         doc.add_heading(title, 0)
         doc.add_paragraph(f"Author: {request.user.username}")
-        doc.add_paragraph(f"Date: {report.created_at.strftime(\"%Y-%m-%d %H:%M\")}")
+        
+        formatted_date = report.created_at.strftime("%Y-%m-%d %H:%M")
+        doc.add_paragraph(f"Date: {formatted_date}")
+        
         doc.add_heading("Report Summary", level=1)
         doc.add_paragraph(content)
 
-        response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
         response["Content-Disposition"] = f"attachment; filename=\"{title}.docx\""
         doc.save(response)
         return response
@@ -76,15 +68,15 @@ def export_inventory_excel(request):
     ws = wb.active
     ws.title = "Inventory Summary"
 
-    # Header Row
     headers = ["ID", "Item Name", "SKU", "Quantity", "Unit Price ($)"]
     ws.append(headers)
 
-    # Data Rows
     for item in InventoryItem.objects.all():
         ws.append([item.id, item.item_name, item.sku, item.quantity, float(item.unit_price)])
 
-    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
     response["Content-Disposition"] = "attachment; filename=\"Inventory_Report.xlsx\""
     wb.save(response)
     return response
