@@ -1,54 +1,25 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from .decorators import role_required
+from .models import Department
+from .forms import DepartmentForm
 
-def user_login(request):
-    """Handles user login authentication."""
-    if request.user.is_authenticated:
-        return redirect('dashboard')
+@login_required
+def department_list(request):
+    departments = Department.objects.all()
+    return render(request, "departments/department_list.html", {"departments": departments})
 
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+@login_required
+def department_create(request):
+    if request.method == "POST":
+        form = DepartmentForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                messages.success(request, f"Welcome back, {user.username}!")
-                return redirect('dashboard')
-            else:
-                messages.error(request, "Invalid username or password.")
+            form.save()
+            messages.success(request, "Department created successfully.")
+            return redirect("department_list")
         else:
-            messages.error(request, "Invalid login credentials.")
+            messages.error(request, "Please correct the errors below.")
     else:
-        form = AuthenticationForm()
+        form = DepartmentForm()
 
-    return render(request, 'accounts/login.html', {'form': form})
-
-
-def user_logout(request):
-    """Handles user logout."""
-    logout(request)
-    messages.info(request, "You have been logged out.")
-    return redirect('login')
-
-
-@login_required
-def dashboard(request):
-    """Central landing page for authenticated users showing role-specific info."""
-    context = {
-        'user': request.user,
-        'role': request.user.get_role_display(),
-    }
-    return render(request, 'accounts/dashboard.html', context)
-
-
-@login_required
-@role_required(['ADMIN', 'MANAGER'])
-def manager_only_view(request):
-    """Example restricted view accessible only to Admins and Managers."""
-    return render(request, 'accounts/manager_panel.html')
+    return render(request, "departments/department_form.html", {"form": form, "title": "Create Department"})
