@@ -16,8 +16,8 @@ from drf_spectacular.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('apps.accounts.urls')),       # Accounts: Login, Logout, Dashboard
-    path('staff/', include('apps.staff.urls')),   # Staff: Executive Analytics & Reports
+    path('accounts/', include('apps.accounts.urls')),   # Accounts: Login, Logout, Dashboard
+    path('staff/', include('apps.staff.urls')),         # Staff: Executive Analytics & Reports
 
     # OpenAPI 3 Schema Generation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
