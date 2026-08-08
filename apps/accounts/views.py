@@ -2,58 +2,51 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from apps.accounts.decorators import role_required
-from .forms import UserRegisterForm
+from .forms import CustomUserCreationForm, CustomLoginForm
+
+def register(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+    if request.method == "POST":
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Account created successfully!")
+            return redirect("dashboard")
+        else:
+            for error in form.errors.values():
+                messages.error(request, error)
+    else:
+        form = CustomUserCreationForm()
+    return render(request, "accounts/register.html", {"form": form})
 
 def user_login(request):
     if request.user.is_authenticated:
         return redirect("dashboard")
-
     if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect("dashboard")
+        form = CustomLoginForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect("dashboard")
+            else:
+                messages.error(request, "Invalid username or password.")
         else:
             messages.error(request, "Invalid username or password.")
+    else:
+        form = CustomLoginForm()
+    return render(request, "accounts/login.html", {"form": form})
 
-    return render(request, "accounts/login.html")
-
-@login_required
 def user_logout(request):
     logout(request)
+    messages.info(request, "You have been logged out.")
     return redirect("login")
 
 @login_required
 def dashboard(request):
-    return render(request, "accounts/dashboard.html", {"user": request.user})
-
-@login_required
-@role_required(["ADMIN", "MANAGER"])
-def manager_only_view(request):
-    return render(request, "accounts/manager_panel.html")
-
-def register_view(request):
-    if request.user.is_authenticated:
-        return redirect("dashboard")
-
-    if request.method == "POST":
-        form = UserRegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-
-            if hasattr(user, "role"):
-                user.role = "STAFF"
-                user.save()
-
-            messages.success(request, "Account created successfully! You can now log in.")
-            return redirect("login")
-        else:
-            messages.error(request, "Please correct the errors below.")
-    else:
-        form = UserRegisterForm()
-
-    return render(request, "accounts/register.html", {"form": form})
+    return render(request, "accounts/dashboard.html")
 
