@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import Staff
+from .models import StaffProfile
 
-@admin.register(Staff)
-class StaffAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'department', 'job_title', 'employment_type', 'date_joined')
-    list_filter = ('employment_type', 'department', 'gender')
-    search_fields = ('user__username', 'user__first_name', 'user__last_name', 'user__email', 'job_title')
-    ordering = ('-date_joined',)
+@admin.register(StaffProfile)
+class StaffProfileAdmin(admin.ModelAdmin):
+    list_display = ("employee_id", "first_name", "last_name", "email", "designation", "hire_date")
+    search_fields = ("employee_id", "first_name", "last_name", "email", "designation")
+    list_filter = ("designation", "hire_date")
+
