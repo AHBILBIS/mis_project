@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Write Report - AHBILBIS ENTERPRISE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-body p-4 p-sm-5">
+                        <h3 class="fw-bold mb-4"><i class="bi bi-file-earmark-word text-primary me-2"></i>Write & Generate Word Report</h3>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Report Title</label>
+                                <input type="text" name="title" class="form-control" placeholder="e.g., Q3 Operational Summary" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Report Content</label>
+                                <textarea name="content" class="form-control" rows="8" placeholder="Write your detailed report here..." required></textarea>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url "dashboard" %}" class="btn btn-outline-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-download me-1"></i> Download Word Document (.docx)</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

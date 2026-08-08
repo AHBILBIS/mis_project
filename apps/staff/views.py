@@ -34,3 +34,58 @@ def staff_create(request):
         form = StaffProfileForm()
 
     return render(request, "staff/staff_form.html", {"form": form, "title": "Add New Staff"})
+
+import io
+from django.http import HttpResponse
+from docx import Document
+import openpyxl
+from .models import InventoryItem, StaffReport
+
+@login_required
+def create_report(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        content = request.POST.get("content")
+        
+        # Save to database
+        report = StaffReport.objects.create(title=title, author=request.user, content=content)
+        
+        # Generate Word Document (.docx)
+        doc = Document()
+        doc.add_heading(title, 0)
+        doc.add_paragraph(f"Author: {request.user.username}")
+        doc.add_paragraph(f"Date: {report.created_at.strftime(\"%Y-%m-%d %H:%M\")}")
+        doc.add_heading("Report Summary", level=1)
+        doc.add_paragraph(content)
+
+        response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        response["Content-Disposition"] = f"attachment; filename=\"{title}.docx\""
+        doc.save(response)
+        return response
+
+    return render(request, "staff/create_report.html")
+
+@login_required
+def inventory_list(request):
+    items = InventoryItem.objects.all()
+    return render(request, "staff/inventory_list.html", {"items": items})
+
+@login_required
+def export_inventory_excel(request):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Inventory Summary"
+
+    # Header Row
+    headers = ["ID", "Item Name", "SKU", "Quantity", "Unit Price ($)"]
+    ws.append(headers)
+
+    # Data Rows
+    for item in InventoryItem.objects.all():
+        ws.append([item.id, item.item_name, item.sku, item.quantity, float(item.unit_price)])
+
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = "attachment; filename=\"Inventory_Report.xlsx\""
+    wb.save(response)
+    return response
+
