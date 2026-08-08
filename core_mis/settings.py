@@ -29,6 +29,12 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 # Allowed hosts configured for environment variables, local testing, and Render
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,.onrender.com,*').split(',')
 
+# CSRF Trusted Origins for Render deployment HTTPS requests
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'https://mis-project-lb9e.onrender.com',
+]
+
 
 # Application definition
 
