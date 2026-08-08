@@ -34,9 +34,10 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
+    # Added password1 and password2 to initial user creation form
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'role', 'employee_id', 'phone_number', 'is_verified'),
+            'fields': ('username', 'email', 'password1', 'password2', 'role', 'employee_id', 'phone_number', 'is_verified'),
         }),
     )
