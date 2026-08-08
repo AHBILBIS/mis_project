@@ -5,6 +5,7 @@ dj-database-url
 drf-spectacular
 djangorestframework
 django-cors-headers
+django-filter
 python-docx
 openpyxl
 whitenoise
