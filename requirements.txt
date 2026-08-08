@@ -9,3 +9,4 @@ django-filter
 python-docx
 openpyxl
 whitenoise
+Pillow
