@@ -1,9 +1,19 @@
 from django.contrib import admin
-from .models import StaffProfile
+from .models import StaffProfile, InventoryItem, StaffReport
 
 @admin.register(StaffProfile)
 class StaffProfileAdmin(admin.ModelAdmin):
-    list_display = ("employee_id", "first_name", "last_name", "email", "designation", "hire_date")
-    search_fields = ("employee_id", "first_name", "last_name", "email", "designation")
-    list_filter = ("designation", "hire_date")
+    list_display = ("user", "department", "phone")
+    search_fields = ("user__username", "department__name")
+
+@admin.register(InventoryItem)
+class InventoryItemAdmin(admin.ModelAdmin):
+    list_display = ("item_name", "sku", "quantity", "unit_price", "last_updated")
+    list_filter = ("last_updated",)
+    search_fields = ("item_name", "sku")
+
+@admin.register(StaffReport)
+class StaffReportAdmin(admin.ModelAdmin):
+    list_display = ("title", "author", "created_at")
+    search_fields = ("title", "author__username")
 
