@@ -4,6 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse
 from docx import Document
+from docx.shared import Inches, Pt, RGBColor
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 import openpyxl
 
 from .models import StaffProfile, InventoryItem, StaffReport
@@ -31,6 +34,8 @@ def create_report(request):
     if request.method == "POST":
         title = request.POST.get("title")
         content = request.POST.get("content")
+        equation_text = request.POST.get("equation", "").strip()
+        uploaded_image = request.FILES.get("report_image")
         
         report = StaffReport.objects.create(
             title=title, 
@@ -39,15 +44,51 @@ def create_report(request):
         )
         
         doc = Document()
-        doc.add_heading(title, 0)
-        doc.add_paragraph(f"Author: {request.user.username}")
         
+        # Document Title
+        heading = doc.add_heading(title, 0)
+        
+        # Author & Metadata
         formatted_date = report.created_at.strftime("%Y-%m-%d %H:%M")
-        doc.add_paragraph(f"Date: {formatted_date}")
+        meta_table = doc.add_table(rows=2, cols=2)
+        meta_table.style = "Table Grid"
         
-        doc.add_heading("Report Summary", level=1)
+        meta_table.cell(0, 0).text = "Author:"
+        meta_table.cell(0, 1).text = request.user.username
+        meta_table.cell(1, 0).text = "Generated Date:"
+        meta_table.cell(1, 1).text = formatted_date
+
+        doc.add_paragraph() # Spacing
+
+        # Section 1: Main Content
+        doc.add_heading("Report Content", level=1)
         doc.add_paragraph(content)
 
+        # Section 2: Equation Editor Section (OMML Container)
+        if equation_text:
+            doc.add_heading("Mathematical Equations & Formulas", level=1)
+            eq_p = doc.add_paragraph()
+            eq_p.add_run("Equation: ")
+            
+            # Create Word Native Equation Element (OMML)
+            m_math = OxmlElement("m:oMathPara")
+            m_math_inner = OxmlElement("m:oMath")
+            m_r = OxmlElement("m:r")
+            m_t = OxmlElement("m:t")
+            m_t.text = equation_text
+            
+            m_r.append(m_t)
+            m_math_inner.append(m_r)
+            m_math.append(m_math_inner)
+            eq_p._p.append(m_math)
+
+        # Section 3: Attached Image
+        if uploaded_image:
+            doc.add_heading("Attached Figures & Diagrams", level=1)
+            image_stream = io.BytesIO(uploaded_image.read())
+            doc.add_picture(image_stream, width=Inches(5.0))
+
+        # Output response
         response = HttpResponse(
             content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         )

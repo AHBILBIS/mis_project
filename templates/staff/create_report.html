@@ -12,20 +12,29 @@
             <div class="col-md-8">
                 <div class="card border-0 shadow-sm rounded-3">
                     <div class="card-body p-4 p-sm-5">
-                        <h3 class="fw-bold mb-4"><i class="bi bi-file-earmark-word text-primary me-2"></i>Write & Generate Word Report</h3>
-                        <form method="POST">
+                        <h3 class="fw-bold mb-4"><i class="bi bi-file-earmark-word text-primary me-2"></i>Generate Word Document (.docx)</h3>
+                        <form method="POST" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Report Title</label>
-                                <input type="text" name="title" class="form-control" placeholder="e.g., Q3 Operational Summary" required>
+                                <input type="text" name="title" class="form-control" placeholder="e.g., Quarterly Performance Analysis" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Report Content</label>
-                                <textarea name="content" class="form-control" rows="8" placeholder="Write your detailed report here..." required></textarea>
+                                <textarea name="content" class="form-control" rows="6" placeholder="Write detailed report text here..." required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold"><i class="bi bi-calculator me-1"></i> Equation / Formula (Optional)</label>
+                                <input type="text" name="equation" class="form-control" placeholder="e.g., E = mc^2 or Total Cost = Unit Price * Quantity">
+                                <div class="form-text">This will be embedded using Microsoft Word Equation Editor format.</div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold"><i class="bi bi-image me-1"></i> Attach Diagram or Image (Optional)</label>
+                                <input type="file" name="report_image" class="form-control" accept="image/*">
                             </div>
                             <div class="d-flex justify-content-between">
                                 <a href="{% url "dashboard" %}" class="btn btn-outline-secondary">Cancel</a>
-                                <button type="submit" class="btn btn-primary"><i class="bi bi-download me-1"></i> Download Word Document (.docx)</button>
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-download me-1"></i> Export Word Document (.docx)</button>
                             </div>
                         </form>
                     </div>
