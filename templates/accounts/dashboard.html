@@ -9,7 +9,6 @@
 </head>
 <body class="bg-light">
 
-    <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
             <a class="navbar-brand fw-bold" href="{% url "dashboard" %}"><i class="bi bi-speedometer2 me-2"></i>Enterprise MIS</a>
@@ -20,7 +19,6 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="container my-5">
         <div class="row mb-4">
             <div class="col">
@@ -30,7 +28,6 @@
         </div>
 
         <div class="row g-4">
-            <!-- User Info Card -->
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm rounded-3">
                     <div class="card-header bg-white border-0 pt-4 px-4">
@@ -59,7 +56,6 @@
                 </div>
             </div>
 
-            <!-- Quick Actions Card -->
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm rounded-3">
                     <div class="card-header bg-white border-0 pt-4 px-4">
@@ -67,16 +63,14 @@
                     </div>
                     <div class="card-body px-4 pb-4">
                         <div class="d-grid gap-2">
-                            <a href="/api/docs/swagger/" class="btn btn-outline-primary text-start p-3" target="_blank">
+                            <a href="{% url "staff_list" %}" class="btn btn-outline-primary text-start p-3">
+                                <i class="bi bi-people me-2"></i><strong>Staff Directory</strong>
+                                <div class="small text-muted ms-4">View and manage staff records</div>
+                            </a>
+                            <a href="/api/docs/swagger/" class="btn btn-outline-secondary text-start p-3" target="_blank">
                                 <i class="bi bi-code-square me-2"></i><strong>Interactive API Docs</strong>
                                 <div class="small text-muted ms-4">Access Swagger UI and API endpoints</div>
                             </a>
-                            {% if user.role == "ADMIN" or user.role == "MANAGER" %}
-                            <a href="{% url "manager_panel" %}" class="btn btn-outline-secondary text-start p-3">
-                                <i class="bi bi-sliders me-2"></i><strong>Manager Panel</strong>
-                                <div class="small text-muted ms-4">Access administrative options</div>
-                            </a>
-                            {% endif %}
                         </div>
                     </div>
                 </div>
