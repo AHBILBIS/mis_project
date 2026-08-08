@@ -14,10 +14,12 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 
 from apps.accounts.decorators import role_required
 from apps.departments.models import Department
-from .models import Staff
-from .serializers import StaffSerializer, DepartmentSerializer, RegisterSerializer
-from .permissions import IsAdminOrReadOnly
-from .exports import export_staff_csv, export_staff_excel
+
+# Fixed: Import staff components from apps.staff
+from apps.staff.models import Staff
+from apps.staff.serializers import StaffSerializer, DepartmentSerializer, RegisterSerializer
+from apps.staff.permissions import IsAdminOrReadOnly
+from apps.staff.exports import export_staff_csv, export_staff_excel
 
 
 # ==========================================
