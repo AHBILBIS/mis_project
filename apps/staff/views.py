@@ -4,8 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse
 from docx import Document
-from docx.shared import Inches
+from docx.shared import Inches, Pt
 from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 import openpyxl
 
 from .models import StaffProfile, InventoryItem, StaffReport
