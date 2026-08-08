@@ -185,3 +185,20 @@ SPECTACULAR_SETTINGS = {
 
 # CORS Configuration for local Swagger UI and frontend API requests
 CORS_ALLOW_ALL_ORIGINS = True
+
+
+# Automated Superuser Creation on App Startup
+from django.contrib.auth import get_user_model
+
+try:
+    User = get_user_model()
+    su_username = os.getenv('DJANGO_SUPERUSER_USERNAME')
+    su_email = os.getenv('DJANGO_SUPERUSER_EMAIL', 'admin@example.com')
+    su_password = os.getenv('DJANGO_SUPERUSER_PASSWORD')
+
+    if su_username and su_password:
+        if not User.objects.filter(username=su_username).exists():
+            User.objects.create_superuser(username=su_username, email=su_email, password=su_password)
+            print(f"[BOOTSTRAP] Superuser '{su_username}' created successfully.")
+except Exception as e:
+    print(f"[BOOTSTRAP] Could not check/create superuser on startup: {e}")
