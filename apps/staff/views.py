@@ -205,3 +205,21 @@ class StaffExportExcelAPIView(APIView):
             queryset = queryset.filter(employment_type=emp_type)
 
         return export_staff_excel(queryset)
+    from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def user_dashboard_view(request):
+    """
+    Renders the dashboard for the currently logged-in user.
+    """
+    user = request.user
+    
+    # Fetch related staff details if they exist
+    staff_profile = getattr(user, 'staff_profile', None)
+
+    context = {
+        'user': user,
+        'staff_profile': staff_profile,
+    }
+    return render(request, 'accounts/dashboard.html', context)
