@@ -123,3 +123,12 @@ def dashboard(request):
 </body>
 </html>"""
     return HttpResponse(html_dashboard, content_type="text/html; charset=utf-8")
+
+
+@login_required
+@role_required(['ADMIN', 'MANAGER'])
+def manager_only_view(request):
+    """
+    Restricted manager panel view.
+    """
+    return HttpResponse("<h3>Manager Panel</h3>", content_type="text/html; charset=utf-8")
