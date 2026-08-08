@@ -1,5 +1,16 @@
 from django import forms
-from .models import InventoryItem
+from .models import StaffProfile, InventoryItem
+
+class StaffProfileForm(forms.ModelForm):
+    class Meta:
+        model = StaffProfile
+        fields = ["department", "position", "phone", "address"]
+        widgets = {
+            "department": forms.Select(attrs={"class": "form-select"}),
+            "position": forms.TextInput(attrs={"class": "form-control", "placeholder": "Position/Role"}),
+            "phone": forms.TextInput(attrs={"class": "form-control", "placeholder": "Phone Number"}),
+            "address": forms.Textarea(attrs={"class": "form-control", "rows": 3, "placeholder": "Address"}),
+        }
 
 class InventoryItemForm(forms.ModelForm):
     class Meta:
