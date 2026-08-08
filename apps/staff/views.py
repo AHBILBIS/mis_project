@@ -96,8 +96,8 @@ class RegisterAPIView(generics.CreateAPIView):
 class StaffListAPIView(generics.ListCreateAPIView):
     """
     API endpoint returning staff members with support for searching, filtering, and pagination.
+    Admins and Managers can view all staff; regular staff can only view their own profile.
     """
-    queryset = Staff.objects.select_related('user', 'department').all()
     serializer_class = StaffSerializer
     permission_classes = [permissions.IsAuthenticated, IsAdminOrReadOnly]
 
@@ -106,6 +106,16 @@ class StaffListAPIView(generics.ListCreateAPIView):
     search_fields = ['user__first_name', 'user__last_name', 'user__email', 'job_title']
     ordering_fields = ['date_joined', 'salary']
     ordering = ['-date_joined']
+
+    def get_queryset(self):
+        user = self.request.user
+        
+        # Superusers, Admins, and Managers can see all staff records
+        if user.is_superuser or getattr(user, 'role', '') in ['ADMIN', 'MANAGER']:
+            return Staff.objects.select_related('user', 'department').all()
+            
+        # Standard staff members can only view their own record
+        return Staff.objects.select_related('user', 'department').filter(user=user)
 
     def perform_create(self, serializer):
         """
