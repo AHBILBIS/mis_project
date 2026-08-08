@@ -4,5 +4,6 @@ psycopg2-binary
 dj-database-url
 drf-spectacular
 djangorestframework
+django-cors-headers
 python-docx
 openpyxl
