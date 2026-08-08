@@ -3,8 +3,8 @@ from .models import StaffProfile, InventoryItem, StaffReport
 
 @admin.register(StaffProfile)
 class StaffProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "department", "phone")
-    search_fields = ("user__username", "department__name")
+    list_display = ("id", "department", "phone")
+    search_fields = ("department__name", "phone")
 
 @admin.register(InventoryItem)
 class InventoryItemAdmin(admin.ModelAdmin):
