@@ -1,16 +1,18 @@
 import io
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import HttpResponse
 from docx import Document
 from docx.shared import Inches, Pt
 from docx.oxml import OxmlElement
-from docx.oxml.ns import qn
 import openpyxl
 
 from .models import StaffProfile, InventoryItem, StaffReport
 from .forms import StaffProfileForm, InventoryItemForm
+
+def is_staff_member(user):
+    return user.is_active and (user.is_staff or user.is_superuser)
 
 @login_required
 def staff_list(request):
@@ -18,6 +20,7 @@ def staff_list(request):
     return render(request, "staff/staff_list.html", {"staff_members": staff_members})
 
 @login_required
+@user_passes_test(is_staff_member)
 def staff_create(request):
     if request.method == "POST":
         form = StaffProfileForm(request.POST)
@@ -92,6 +95,7 @@ def inventory_list(request):
     return render(request, "staff/inventory_list.html", {"items": items})
 
 @login_required
+@user_passes_test(is_staff_member)
 def inventory_create(request):
     if request.method == "POST":
         form = InventoryItemForm(request.POST)
@@ -104,6 +108,7 @@ def inventory_create(request):
     return render(request, "staff/inventory_form.html", {"form": form, "title": "Add New Inventory Item"})
 
 @login_required
+@user_passes_test(is_staff_member)
 def inventory_edit(request, pk):
     item = get_object_or_404(InventoryItem, pk=pk)
     if request.method == "POST":
