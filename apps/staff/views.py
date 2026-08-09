@@ -1,4 +1,5 @@
 import io
+import uuid
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
@@ -9,7 +10,7 @@ from docx.shared import Inches
 from docx.oxml import OxmlElement
 import openpyxl
 
-from .models import StaffProfile, InventoryItem, StaffReport, Sale, AuditLog
+from .models import StaffProfile, InventoryItem, StaffReport, Sale, AuditLog, CartItem, Order, OrderItem
 from .forms import StaffProfileForm, InventoryItemForm, SaleForm
 
 User = get_user_model()
@@ -84,7 +85,7 @@ def record_sale(request):
                 sale.total_price = sale.quantity_sold * item.unit_price
                 sale.save()
 
-                log_action(request.user, "Recorded Sale", f"Sold {sale.quantity_sold}x {item.item_name} for ${sale.total_price}")
+                log_action(request.user, "Recorded Sale", f"Sold {sale.quantity_sold}x {item.item_name} for ")
                 messages.success(request, "Sale recorded and inventory stock updated.")
                 return redirect("sales_list")
     else:
@@ -168,3 +169,93 @@ def export_inventory_excel(request):
     wb.save(response)
     return response
 
+# --- E-Commerce & Storefront Views ---
+
+def store_home(request):
+    items = InventoryItem.objects.filter(quantity__gt=0)
+    return render(request, "store/store_home.html", {"items": items})
+
+@login_required
+def add_to_cart(request, item_id):
+    item = get_object_or_404(InventoryItem, id=item_id)
+    if item.quantity < 1:
+        messages.error(request, f"{item.item_name} is out of stock.")
+        return redirect("store_home")
+
+    cart_item, created = CartItem.objects.get_or_create(user=request.user, item=item)
+    if not created:
+        if cart_item.quantity + 1 > item.quantity:
+            messages.warning(request, f"Cannot add more. Only {item.quantity} available in stock.")
+            return redirect("cart_view")
+        cart_item.quantity += 1
+        cart_item.save()
+    else:
+        cart_item.quantity = 1
+        cart_item.save()
+
+    messages.success(request, f"Added {item.item_name} to your cart.")
+    return redirect("cart_view")
+
+@login_required
+def cart_view(request):
+    items = CartItem.objects.filter(user=request.user).select_related("item")
+    total = sum(item.subtotal() for item in items)
+    return render(request, "store/cart.html", {"cart_items": items, "total": total})
+
+@login_required
+def remove_from_cart(request, item_id):
+    CartItem.objects.filter(user=request.user, item_id=item_id).delete()
+    messages.info(request, "Item removed from shopping cart.")
+    return redirect("cart_view")
+
+@login_required
+def checkout(request):
+    cart_items = CartItem.objects.filter(user=request.user).select_related("item")
+    if not cart_items.exists():
+        messages.error(request, "Your shopping cart is empty.")
+        return redirect("store_home")
+
+    total = sum(item.subtotal() for item in cart_items)
+
+    if request.method == "POST":
+        address = request.POST.get("shipping_address")
+        phone = request.POST.get("contact_phone")
+        order_num = f"ORD-{uuid.uuid4().hex[:8].upper()}"
+
+        order = Order.objects.create(
+            customer=request.user,
+            order_number=order_num,
+            shipping_address=address,
+            contact_phone=phone,
+            total_amount=total,
+            status="Pending"
+        )
+
+        for ci in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                item=ci.item,
+                quantity=ci.quantity,
+                unit_price=ci.item.unit_price
+            )
+            ci.item.quantity -= ci.quantity
+            ci.item.save()
+
+            Sale.objects.create(
+                item=ci.item,
+                performed_by=request.user,
+                quantity_sold=ci.quantity,
+                total_price=ci.subtotal()
+            )
+
+        cart_items.delete()
+        log_action(request.user, "Placed Online Order", f"Order #{order.order_number} Total: ")
+        messages.success(request, f"Order #{order.order_number} placed successfully!")
+        return redirect("customer_dashboard")
+
+    return render(request, "store/checkout.html", {"cart_items": cart_items, "total": total})
+
+@login_required
+def customer_dashboard(request):
+    orders = Order.objects.filter(customer=request.user).prefetch_related("items__item").order_by("-created_at")
+    return render(request, "store/customer_dashboard.html", {"orders": orders})
