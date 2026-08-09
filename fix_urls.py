@@ -1,4 +1,4 @@
-from django.urls import path
+code = '''from django.urls import path
 from . import views
 
 urlpatterns = [
@@ -20,3 +20,9 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('customer/dashboard/', views.customer_dashboard, name='customer_dashboard'),
 ]
+'''
+
+with open('apps/staff/urls.py', 'w', encoding='utf-8') as f:
+    f.write(code)
+
+print("SUCCESS: Updated apps/staff/urls.py!")
