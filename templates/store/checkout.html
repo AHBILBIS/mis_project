@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container my-5" style="max-width: 600px;">
+        <div class="card border-0 shadow-sm rounded-3 p-4">
+            <h3 class="fw-bold mb-3">Order Checkout</h3>
+            <p class="text-muted">Total Amount to Pay: <strong class="text-success">${{ total }}</strong></p>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Shipping Address</label>
+                    <textarea name="shipping_address" class="form-control" rows="3" required placeholder="Enter full delivery address"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Contact Phone Number</label>
+                    <input type="text" name="contact_phone" class="form-control" required placeholder="+60 12-345 6789">
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100">Confirm & Place Order</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

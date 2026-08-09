@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Shopping Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-cart3 me-2"></i>Shopping Cart</h2>
+            <a href="{% url 'store_home' %}" class="btn btn-outline-secondary">Continue Shopping</a>
+        </div>
+        <div class="card border-0 shadow-sm rounded-3 p-4">
+            <table class="table align-middle">
+                <thead><tr><th>Product</th><th>Price</th><th>Qty</th><th>Subtotal</th><th>Action</th></tr></thead>
+                <tbody>
+                    {% for ci in cart_items %}
+                    <tr>
+                        <td><strong>{{ ci.item.item_name }}</strong><br><small class="text-muted">{{ ci.item.sku }}</small></td>
+                        <td>${{ ci.item.unit_price }}</td>
+                        <td>{{ ci.quantity }}</td>
+                        <td class="fw-bold">${{ ci.subtotal }}</td>
+                        <td><a href="{% url 'remove_from_cart' ci.item.id %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center py-4">Your cart is empty. <a href="{% url 'store_home' %}">Browse Store</a></td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if cart_items %}
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                <h4>Total: <span class="text-success">${{ total }}</span></h4>
+                <a href="{% url 'checkout' %}" class="btn btn-success btn-lg">Proceed to Checkout <i class="bi bi-arrow-right ms-1"></i></a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
