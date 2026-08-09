@@ -18,6 +18,24 @@ def log_action(user, action, details=""):
     AuditLog.objects.create(user=user, action=action, details=details)
 
 @login_required
+def staff_list(request):
+    staff_members = StaffProfile.objects.select_related("user", "department").all()
+    return render(request, "staff/staff_list.html", {"staff_members": staff_members})
+
+@login_required
+@user_passes_test(is_staff_member)
+def staff_create(request):
+    if request.method == "POST":
+        form = StaffProfileForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Staff profile created successfully.")
+            return redirect("staff_list")
+    else:
+        form = StaffProfileForm()
+    return render(request, "staff/staff_form.html", {"form": form})
+
+@login_required
 def inventory_list(request):
     try:
         user_dept = getattr(request.user, "staff_profile", None)
