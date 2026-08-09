@@ -320,3 +320,11 @@ def export_inventory_excel(request):
     for item in InventoryItem.objects.all():
         writer.writerow([item.sku, item.item_name, item.quantity, item.unit_price])
     return response
+
+
+def staff_list(request):
+    profiles = StaffProfile.objects.all() if "StaffProfile" in globals() else []
+    return render(request, "staff/staff_list.html", {"profiles": profiles})
+
+def create_report(request):
+    return render(request, "staff/report_form.html")

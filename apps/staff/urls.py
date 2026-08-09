@@ -9,11 +9,17 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('orders/', views.customer_dashboard, name='customer_dashboard'),
 
+    # Staff Directory route
+    path('list/', views.staff_list, name='staff_list'),
+
     # Inventory Management routes
     path('inventory/', views.inventory_list, name='inventory_list'),
     path('inventory/create/', views.inventory_create, name='inventory_create'),
     path('inventory/edit/<int:item_id>/', views.inventory_edit, name='inventory_edit'),
     path('inventory/delete/<int:item_id>/', views.inventory_delete, name='inventory_delete'),
     path('inventory/export/', views.export_inventory_excel, name='export_inventory_excel'),
+
+    # Word Report route
+    path('report/create/', views.create_report, name='create_report'),
 ]
 
