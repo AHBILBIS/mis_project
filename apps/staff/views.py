@@ -19,11 +19,15 @@ def log_action(user, action, details=""):
 
 @login_required
 def inventory_list(request):
-    user_dept = getattr(request.user, "staff_profile", None)
-    if user_dept and user_dept.department and not request.user.is_superuser:
-        items = InventoryItem.objects.filter(department=user_dept.department)
-    else:
+    try:
+        user_dept = getattr(request.user, "staff_profile", None)
+        if user_dept and user_dept.department and not request.user.is_superuser:
+            items = InventoryItem.objects.filter(department=user_dept.department)
+        else:
+            items = InventoryItem.objects.all()
+    except Exception:
         items = InventoryItem.objects.all()
+        
     return render(request, "staff/inventory_list.html", {"items": items})
 
 @login_required
