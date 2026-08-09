@@ -85,7 +85,7 @@ def record_sale(request):
                 sale.total_price = sale.quantity_sold * item.unit_price
                 sale.save()
 
-                log_action(request.user, "Recorded Sale", f"Sold {sale.quantity_sold}x {item.item_name} for ${sale.total_price}")
+                log_action(request.user, "Recorded Sale", f"Sold {sale.quantity_sold}x {item.item_name} for ")
                 messages.success(request, "Sale recorded and inventory stock updated.")
                 return redirect("sales_list")
     else:
@@ -260,7 +260,7 @@ def checkout(request):
             )
 
         cart_items.delete()
-        log_action(request.user, "Placed Online Order", f"Order #{order.order_number} Total: ${total}")
+        log_action(request.user, "Placed Online Order", f"Order #{order.order_number} Total: ")
         messages.success(request, f"Order #{order.order_number} placed successfully!")
         return redirect("customer_dashboard")
 
