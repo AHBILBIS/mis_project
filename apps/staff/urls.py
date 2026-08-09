@@ -9,8 +9,9 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('orders/', views.customer_dashboard, name='customer_dashboard'),
 
-    # Staff Directory route
+    # Staff Directory routes
     path('list/', views.staff_list, name='staff_list'),
+    path('create/', views.staff_create, name='staff_create'),
 
     # Inventory Management routes
     path('inventory/', views.inventory_list, name='inventory_list'),

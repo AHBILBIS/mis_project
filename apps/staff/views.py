@@ -328,3 +328,7 @@ def staff_list(request):
 
 def create_report(request):
     return render(request, "staff/report_form.html")
+
+
+def staff_create(request):
+    return render(request, "staff/staff_form.html")
