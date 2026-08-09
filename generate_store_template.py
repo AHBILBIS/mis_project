@@ -1,4 +1,8 @@
-<!DOCTYPE html>
+import os
+
+os.makedirs('templates/store', exist_ok=True)
+
+html_content = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -47,4 +51,9 @@
         </div~
     </div>
 </body>
-</html>
+</html>"""
+
+with open('templates/store/store_home.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print("SUCCESS: Created templates/store/store_home.html!")
