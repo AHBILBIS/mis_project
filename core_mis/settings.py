@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "apps.accounts",
     "apps.staff",
+    "apps.departments",
 ]
 
 MIDDLEWARE = [
