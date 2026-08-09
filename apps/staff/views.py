@@ -2,6 +2,7 @@ import io
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from docx import Document
 from docx.shared import Inches
@@ -11,6 +12,8 @@ import openpyxl
 from .models import StaffProfile, InventoryItem, StaffReport, Sale, AuditLog
 from .forms import StaffProfileForm, InventoryItemForm, SaleForm
 
+User = get_user_model()
+
 def is_staff_member(user):
     return user.is_active and (user.is_staff or user.is_superuser)
 
@@ -19,8 +22,8 @@ def log_action(user, action, details=""):
 
 @login_required
 def staff_list(request):
-    staff_members = StaffProfile.objects.select_related("user", "department").all()
-    return render(request, "staff/staff_list.html", {"staff_members": staff_members})
+    users = User.objects.all().order_by("-date_joined")
+    return render(request, "staff/staff_list.html", {"staff_members": users})
 
 @login_required
 @user_passes_test(is_staff_member)
