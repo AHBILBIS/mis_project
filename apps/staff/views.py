@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from docx import Document
-from .models import InventoryItem, StaffProfile
+from .models import InventoryItem, StaffProfile, Report
 
 @login_required
 def store_home(request):
@@ -89,6 +89,13 @@ def export_inventory_excel(request):
 @login_required
 def create_report(request):
     if request.method == "POST":
+        title = request.POST.get("title", "MIS Report")
+        author = request.POST.get("author", "Staff")
+        body_text = request.POST.get("content", "")
+
+        # Save to database
+        if "Report" in globals():
+            Report.objects.create(title=title, author=author, content=body_text)
         title = request.POST.get("title", "MIS Report")
         author = request.POST.get("author", "Staff")
         body_text = request.POST.get("content", "")
