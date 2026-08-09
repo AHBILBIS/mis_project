@@ -1,5 +1,20 @@
 from django.contrib import admin
-from .models import StaffProfile, InventoryItem, StaffReport, Sale, AuditLog
+from .models import StaffProfile, InventoryItem, StaffReport, Sale, AuditLog, CartItem, Order, OrderItem
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ("order_number", "customer", "total_amount", "status", "created_at")
+    list_filter = ("status", "created_at")
+    search_fields = ("order_number", "customer__username", "shipping_address")
+    inlines = [OrderItemInline]
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ("user", "item", "quantity", "created_at")
 
 @admin.register(StaffProfile)
 class StaffProfileAdmin(admin.ModelAdmin):
@@ -21,4 +36,3 @@ class AuditLogAdmin(admin.ModelAdmin):
 @admin.register(StaffReport)
 class StaffReportAdmin(admin.ModelAdmin):
     list_display = ("title", "author", "created_at")
-
