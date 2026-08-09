@@ -22,7 +22,7 @@ class InventoryItem(models.Model):
         return f"{self.item_name} ({self.sku})"
 
 class Sale(models.Model):
-    item = models.ForeignKey(InventoryItem, on_delete=models.CASCADE, related_related="sales")
+    item = models.ForeignKey(InventoryItem, on_delete=models.CASCADE, related_name="sales")
     performed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     quantity_sold = models.PositiveIntegerField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -38,7 +38,7 @@ class AuditLog(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"[{self.timestamp.strftime("%Y-%m-%d %H:%M")}] {self.user} - {self.action}"
+        return f"[{self.timestamp.strftime('%Y-%m-%d %H:%M')}] {self.user} - {self.action}"
 
 class StaffReport(models.Model):
     title = models.CharField(max_length=255)
