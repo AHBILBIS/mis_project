@@ -292,3 +292,31 @@ def inventory_delete(request, item_id):
     item = get_object_or_404(InventoryItem, id=item_id)
     item.delete()
     return redirect('inventory_list')
+
+
+import csv
+from django.http import HttpResponse
+
+def inventory_create(request):
+    if request.method == "POST":
+        item_name = request.POST.get("item_name")
+        sku = request.POST.get("sku")
+        quantity = request.POST.get("quantity", 0)
+        unit_price = request.POST.get("unit_price", 0.0)
+        InventoryItem.objects.create(
+            item_name=item_name,
+            sku=sku,
+            quantity=quantity,
+            unit_price=unit_price
+        )
+        return redirect("inventory_list")
+    return render(request, "staff/inventory_form.html")
+
+def export_inventory_excel(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = "attachment; filename=inventory.csv"
+    writer = csv.writer(response)
+    writer.writerow(["SKU", "Item Name", "Quantity", "Unit Price"])
+    for item in InventoryItem.objects.all():
+        writer.writerow([item.sku, item.item_name, item.quantity, item.unit_price])
+    return response
