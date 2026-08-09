@@ -85,7 +85,7 @@ def record_sale(request):
                 sale.total_price = sale.quantity_sold * item.unit_price
                 sale.save()
 
-                log_action(request.user, "Recorded Sale", f"Sold {sale.quantity_sold}x {item.item_name} for ")
+                log_action(request.user, "Recorded Sale", f"Sold {sale.quantity_sold}x {item.item_name} for ${sale.total_price}")
                 messages.success(request, "Sale recorded and inventory stock updated.")
                 return redirect("sales_list")
     else:
@@ -148,7 +148,7 @@ def create_report(request):
             doc.add_picture(image_stream, width=Inches(5.0))
 
         response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-        response["Content-Disposition"] = f"attachment; filename=\"{title}.docx\""
+        response["Content-Disposition"] = f'attachment; filename="{title}.docx"'
         doc.save(response)
         return response
 
@@ -165,14 +165,17 @@ def export_inventory_excel(request):
         ws.append([item.id, item.item_name, item.sku, item.quantity, float(item.unit_price)])
 
     response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response["Content-Disposition"] = "attachment; filename=\"Inventory_Report.xlsx\""
+    response["Content-Disposition"] = 'attachment; filename="Inventory_Report.xlsx"'
     wb.save(response)
     return response
 
 # --- E-Commerce & Storefront Views ---
 
 def store_home(request):
-    items = InventoryItem.objects.filter(quantity__gt=0)
+    try:
+        items = InventoryItem.objects.all()
+    except Exception:
+        items = []
     return render(request, "store/store_home.html", {"items": items})
 
 @login_required
@@ -198,8 +201,12 @@ def add_to_cart(request, item_id):
 
 @login_required
 def cart_view(request):
-    items = CartItem.objects.filter(user=request.user).select_related("item")
-    total = sum(item.subtotal() for item in items)
+    try:
+        items = CartItem.objects.filter(user=request.user).select_related("item")
+        total = sum(item.subtotal() for item in items)
+    except Exception:
+        items = []
+        total = 0
     return render(request, "store/cart.html", {"cart_items": items, "total": total})
 
 @login_required
@@ -210,7 +217,11 @@ def remove_from_cart(request, item_id):
 
 @login_required
 def checkout(request):
-    cart_items = CartItem.objects.filter(user=request.user).select_related("item")
+    try:
+        cart_items = CartItem.objects.filter(user=request.user).select_related("item")
+    except Exception:
+        cart_items = CartItem.objects.none()
+
     if not cart_items.exists():
         messages.error(request, "Your shopping cart is empty.")
         return redirect("store_home")
@@ -249,7 +260,7 @@ def checkout(request):
             )
 
         cart_items.delete()
-        log_action(request.user, "Placed Online Order", f"Order #{order.order_number} Total: ")
+        log_action(request.user, "Placed Online Order", f"Order #{order.order_number} Total: ${total}")
         messages.success(request, f"Order #{order.order_number} placed successfully!")
         return redirect("customer_dashboard")
 
