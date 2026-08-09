@@ -273,3 +273,22 @@ def customer_dashboard(request):
     except Exception:
         orders = []
     return render(request, "store/customer_dashboard.html", {"orders": orders})
+
+
+from django.shortcuts import get_object_or_404, redirect
+
+def inventory_edit(request, item_id):
+    item = get_object_or_404(InventoryItem, id=item_id)
+    if request.method == 'POST':
+        item.item_name = request.POST.get('item_name', item.item_name)
+        item.sku = request.POST.get('sku', item.sku)
+        item.quantity = request.POST.get('quantity', item.quantity)
+        item.unit_price = request.POST.get('unit_price', item.unit_price)
+        item.save()
+        return redirect('inventory_list')
+    return render(request, 'staff/inventory_edit.html', {'item': item})
+
+def inventory_delete(request, item_id):
+    item = get_object_or_404(InventoryItem, id=item_id)
+    item.delete()
+    return redirect('inventory_list')
