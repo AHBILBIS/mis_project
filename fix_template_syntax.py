@@ -1,0 +1,59 @@
+import os
+
+os.makedirs('templates/store', exist_ok=True)
+
+html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Shop | Storefront</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css?bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'store_home' %}"><i class="bi bi-shop me-2"></i>MIS Online Store</a>
+            <div>
+                <a href="{% url 'cart_view' %}" class="btn btn-light me-2"><i class="bi bi-cart3 me-1"></i> Cart</a>
+                <a href="{% url 'customer_dashboard' %}" class="btn btn-outline-light me-2">My Orders</a>
+                <a href="/accounts/dashboard/" class="btn btn-dark">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container my-5">
+        {% for message in messages %}
+            <div class="alert alert'{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+        <h2 class="fw-bold mb-4">Available Products</h2>
+        <div class="row g-4">
+            {% for item in items %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-3">
+                    <div class="card-body p-4">
+                        <span class="badge bg-secondary mb-2">{{ item.sku }}</span>
+                        <h5 class="fw-bold card-title">{{ item.item_name }}</h5>
+                        <p class="text-muted small">High quality inventory item available for purchase.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="fs-4 fw-bold text-success">${{ item.unit_price }}</span>
+                            <span class="badge bg-info text-dark">Stock: {{ item.quantity }}</span>
+                        </div>
+                        <a href="{% url 'add_to_cart' item.id %}" class="btn btn-primary w-100 mt-3"><i class="bi bi-cart-plus me-1"></i> Add to Cart</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12"><div class="alert alert-info">No products available in the shop right now. Add items from the Staff Inventory page first.</div></div>
+            {% endfor %}
+        </div~
+    </div>
+</body>
+</html>"""
+
+with open('templates/store/store_home.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print("SUCCESS: Created templates/store/store_home.html!")

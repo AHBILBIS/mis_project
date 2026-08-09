@@ -65,3 +65,12 @@ class OrderItem(models.Model):
 
     def subtotal(self):
         return self.quantity * self.unit_price
+
+class Report(models.Model):
+    title = models.CharField(max_length=255)
+    author = models.CharField(max_length=255)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.author}"
