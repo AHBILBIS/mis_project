@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Write Word Report | MIS System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container my-5" style="max-width: 700px;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold m-0"><i class="bi bi-file-earmark-word me-2 text-primary"></i>Generate Word Report</h2>
+            <a href="/accounts/dashboard/" class="btn btn-outline-secondary">Dashboard</a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 rounded-3">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Report Title</label>
+                    <input type="text" name="title" class="form-control" placeholder="e.g. Monthly Operational Report" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Author Name</label>
+                    <input type="text" name="author" class="form-control" value="{{ user.get_full_name|default:user.username }}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Report Body / Summary</label>
+                    <textarea name="content" class="form-control" rows="8" placeholder="Enter key metrics, updates, or operational summary..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 fw-bold"><i class="bi bi-download me-1"></i> Download Word (.docx) Report</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

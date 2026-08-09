@@ -10,3 +10,5 @@ python-docx
 openpyxl
 whitenoise
 Pillow
+
+python-docx
