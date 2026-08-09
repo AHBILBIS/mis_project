@@ -1,7 +1,11 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from . import views
 
 urlpatterns = [
+    # Redirect /staff/ directly to /staff/store/
+    path('', RedirectView.as_view(url='store/', permanent=False)),
+
     path('list/', views.staff_list, name='staff_list'),
     path('create/', views.staff_create, name='staff_create'),
     path('inventory/', views.inventory_list, name='inventory_list'),
